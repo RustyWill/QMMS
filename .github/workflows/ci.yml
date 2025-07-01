@@ -17,7 +17,7 @@ jobs:
       - name: Install & test frontend
         run: |
           cd frontend
-          npm ci
+          npm install
           npm test
       - name: Setup Python
         uses: actions/setup-python@v4
