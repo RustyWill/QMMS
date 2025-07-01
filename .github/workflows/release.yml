@@ -8,7 +8,6 @@ on:
 jobs:
   build-installer:
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v3
 
@@ -24,23 +23,26 @@ jobs:
           npm run build
 
       - name: Install Electron Builder
-        run: npm ci
+        run: |
+          cd installer
+          npm install
 
       - name: Build Installer
-        run: npm run dist
+        run: |
+          cd installer
+          npm run build
 
       - name: Create GitHub Release
-        id: create
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload Installer
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          assets: dist_installer/QMMS 2.0 Trading System Setup.exe
+          files: |
+            installer/dist/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

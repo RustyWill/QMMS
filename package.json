@@ -1,5 +1,5 @@
 {
-  "name": "QMMS Trading System",
+  "name": "qmms-trading-system",
   "version": "2.0.0",
   "private": true,
   "scripts": {
@@ -10,5 +10,18 @@
   "devDependencies": {
     "electron": "^25.0.0",
     "electron-builder": "^23.6.0"
-  }
+  },
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RustyWill/QMMS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RustyWill/QMMS/issues"
+  },
+  "homepage": "https://github.com/RustyWill/QMMS#readme",
+  "description": ""
 }
