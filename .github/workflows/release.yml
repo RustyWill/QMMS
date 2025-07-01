@@ -8,19 +8,28 @@ on:
 jobs:
   build-installer:
     runs-on: windows-latest
+
     steps:
       - uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
-        with: { node-version: '18' }
+        with:
+          node-version: '18'
+
       - name: Build Frontend
         run: |
           cd frontend
           npm ci
           npm run build
+
+      - name: Install Electron Builder
+        run: npm ci
+
       - name: Build Installer
         run: npm run dist
-      - name: Create Release
+
+      - name: Create GitHub Release
         id: create
         uses: softprops/action-gh-release@v1
         with:
