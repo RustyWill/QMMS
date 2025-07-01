@@ -1,0 +1,14 @@
+{
+  "name": "QMMS Trading System",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build:frontend": "cd frontend && npm run build",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "electron-builder": "^23.6.0"
+  }
+}
