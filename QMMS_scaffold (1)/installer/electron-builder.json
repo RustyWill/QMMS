@@ -1,0 +1,20 @@
+{
+  "appId": "com.rustywilliams.qmms",
+  "directories": { "output": "dist_installer", "buildResources": "assets" },
+  "files": [
+    "main.js",
+    "preload.js",
+    "frontend/build/**/*",
+    "backend/**/*",
+    "ml_pattern_discovery/**/*",
+    "alerting/**/*"
+  ],
+  "win": { "target": ["nsis"], "icon": "assets/icons/win/icon.ico" },
+  "nsis": {
+    "oneClick": true,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": false,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true
+  }
+}
