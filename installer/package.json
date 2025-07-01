@@ -1,0 +1,11 @@
+{
+  "name": "qmms-installer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron-builder": "^23.6.0"
+  }
+}
