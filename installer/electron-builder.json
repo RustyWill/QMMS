@@ -1,20 +1,26 @@
 {
-  "appId": "com.rustywilliams.qmms",
-  "directories": { "output": "dist_installer", "buildResources": "assets" },
+  "appId": "com.yourcompany.qmms",
+  "productName": "QMMS Trading System",
+  "directories": {
+    "output": "dist_installer",
+    "app": "."
+  },
   "files": [
-    "main.js",
-    "preload.js",
-    "frontend/build/**/*",
-    "backend/**/*",
-    "ml_pattern_discovery/**/*",
-    "alerting/**/*"
+    // include everything under installer/, plus your app entry one level up:
+    "**/*",
+    "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+    "!node_modules/.bin",
+    // if you use Option A (main="../main.js"), explicitly bundle the root main.js:
+    "../main.js"
   ],
-  "win": { "target": ["nsis"], "icon": "assets/icons/win/icon.ico" },
+  "win": {
+    "target": "nsis",
+    "icon": "installer/icons/app.ico"
+  },
   "nsis": {
-    "oneClick": true,
+    "oneClick": false,
     "perMachine": false,
-    "allowToChangeInstallationDirectory": false,
-    "createDesktopShortcut": true,
-    "createStartMenuShortcut": true
+    "allowToChangeInstallationDirectory": true
   }
 }
+
