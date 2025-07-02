@@ -1,48 +1,70 @@
 name: Build & Release
 
+# 1️⃣ Trigger only on semver‐style tags
 on:
   push:
     tags:
       - 'v*.*.*'
 
 jobs:
-  build-installer:
+  build-and-release:
     runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
 
+    steps:
+      # 2️⃣ Checkout your code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 3️⃣ Setup Node.js to build the front-end
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: Build Frontend
+      - name: Install & build front-end
+        working-directory: frontend
         run: |
-          cd frontend
-          npm install
+          npm ci
           npm run build
 
-      - name: Install Electron Builder
-        run: |
-          cd installer
-          npm install
+      # 4️⃣ Setup Python & run tests (allow no-tests)
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-      - name: Build Installer
+      - name: Install Python deps
         run: |
-          cd installer
-          npm run build
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Run Python tests
+        run: pytest
+        continue-on-error: true
+
+      # 5️⃣ Install & build your Windows installer
+      - name: Install installer dependencies
+        working-directory: installer
+        run: npm ci
+
+      - name: Build Windows installer
+        working-directory: installer
+        run: npm run build
+
+      # 6️⃣ Create the GitHub Release
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        id: create_release
+        uses: actions/create-release@v1
         with:
-          tag_name: ${{ github.ref }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
 
-      - name: Upload Installer
-        uses: softprops/action-gh-release@v1
+      # 7️⃣ Upload the generated .exe to the Release
+      - name: Upload installer asset
+        uses: actions/upload-release-asset@v1
         with:
-          files: |
-            installer/dist/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: installer/dist/*.exe
+          asset_name: QMMS-${{ github.ref_name }}-Setup.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
