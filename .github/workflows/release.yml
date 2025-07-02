@@ -1,6 +1,5 @@
 name: Build & Release
 
-# 1️⃣ Trigger only on semver‐style tags
 on:
   push:
     tags:
@@ -11,11 +10,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # 2️⃣ Checkout your code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 3️⃣ Setup Node.js to build the front-end
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -26,8 +23,8 @@ jobs:
         run: |
           npm ci
           npm run build
+        shell: bash
 
-      # 4️⃣ Setup Python & run tests (allow no-tests)
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -35,36 +32,37 @@ jobs:
 
       - name: Install Python deps
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+        shell: bash
 
       - name: Run Python tests
-        run: pytest
-        continue-on-error: true
+        run: |
+          pytest --maxfail=1 --disable-warnings --exitfirst || true
+        shell: bash
 
-      # 5️⃣ Install & build your Windows installer
       - name: Install installer dependencies
         working-directory: installer
         run: npm ci
+        shell: bash
 
       - name: Build Windows installer
         working-directory: installer
         run: npm run build
+        shell: bash
 
-      # 6️⃣ Create the GitHub Release
       - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+          name: Release ${{ github.ref_name }}
+          body: |
+            Automated release for version ${{ github.ref_name }}
 
-      # 7️⃣ Upload the generated .exe to the Release
       - name: Upload installer asset
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: installer/dist/*.exe
-          asset_name: QMMS-${{ github.ref_name }}-Setup.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          assets: installer/dist/*.exe

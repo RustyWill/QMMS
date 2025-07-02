@@ -1,24 +1,19 @@
-# .github/workflows/ci.yml
 name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build-test:
     runs-on: windows-latest
 
     steps:
-      # 1️⃣ Checkout your code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Node.js and test the front-end
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -28,21 +23,23 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
-          npm run test -- --passWithNoTests
+          npm run build
+          npm test -- --passWithNoTests
+        shell: bash
 
-      # 3️⃣ Set up Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      # 4️⃣ Install Python dependencies (if any)
-      - name: Install Python dependencies
+      - name: Install Python deps
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
         shell: bash
 
-      # 5️⃣ Run Python tests (allowed to fail if none exist)
       - name: Run Python tests
-        run: pytest || true
-       
+        run: |
+          pytest --maxfail=1 --disable-warnings --exitfirst || true
+        shell: bash
