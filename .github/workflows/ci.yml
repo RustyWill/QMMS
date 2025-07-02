@@ -44,5 +44,5 @@ jobs:
 
       # 5️⃣ Run Python tests (allowed to fail if none exist)
       - name: Run Python tests
-        run: pytest
-        continue-on-error: true
+        run: pytest || true
+       
