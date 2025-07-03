@@ -1,18 +1,15 @@
 {
-  "appId": "com.rustywill.qmms",
-  "productName": "QMMS",
+  "appId": "com.yourcompany.qmms",
+  "productName": "QMMS Trading System",
   "directories": {
-    "app": "..",
+    "app": ".",
     "output": "dist_installer"
   },
   "files": [
-    "main.js",
-    "preload.js",
-    "package.json",
-    "build/**/*",
-    "frontend/build/**/*"
+    "**/*"
   ],
   "win": {
     "target": "nsis"
   }
 }
+
