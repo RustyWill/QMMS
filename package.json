@@ -1,6 +1,6 @@
 {
   "name": "QMMS Trading System",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "private": true,
   "scripts": {
     "build:frontend": "cd frontend && npm ci && npm run build",
