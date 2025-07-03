@@ -2,11 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build-test:
@@ -25,30 +23,22 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
-          npm run test -- --passWithNoTests
+          npm run build
+          npm test -- --passWithNoTests
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: Install Python deps
+      - name: Install Python deps (if any)
+        shell: bash
         run: |
           if [ -f requirements.txt ]; then
-            pip install --upgrade pip
             pip install -r requirements.txt
           fi
-        shell: bash
 
       - name: Run Python tests
-        shell: bash               # ← force Bash on Windows
+        shell: bash
         run: |
           pytest || true
-
-      - name: Post Setup Python
-        if: always()
-        run: echo "Python step finished"
-
-      - name: Post Setup Node.js
-        if: always()
-        run: echo "Node step finished"

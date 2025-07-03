@@ -1,4 +1,3 @@
-# .github/workflows/release.yml
 name: Build & Release
 
 on:
@@ -7,68 +6,67 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  build-test:
     runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Set up Node.js
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: Install & test frontend
+      - name: Install & build frontend
         working-directory: frontend
         run: |
           npm ci
-          npm run test -- --passWithNoTests
+          npm run build
 
-      - name: Build frontend production bundle
-        working-directory: frontend
-        run: npm run build
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
       - name: Install Python deps (if any)
+        shell: bash
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
 
       - name: Run Python tests
-        run: pytest || true
+        shell: bash
+        run: |
+          pytest || true
 
   build-and-release:
-    needs: build-and-test
+    needs: build-test
     runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    defaults:
+      run:
+        working-directory: installer
 
-      - name: Set up Node.js
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
       - name: Install & build installer
-        working-directory: installer
         run: |
           npm ci
           npm run build
 
       - name: Create GitHub Release (draft)
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: actions/create-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
           draft: true
 
-      - name: Upload Windows installer asset
+      - name: Upload installer asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
