@@ -1,56 +1,67 @@
 name: Build & Release
 
+# Fire on every push to main
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main
 
 jobs:
   build-and-release:
     runs-on: windows-latest
+    needs: build-test
+
     steps:
       - uses: actions/checkout@v3
 
+      # Build & test frontend (reuse CI steps)
       - name: Setup Node.js
         uses: actions/setup-node@v3
-        with: node-version: '18'
+        with:
+          node-version: '18'
 
-      - name: Install & build front-end
+      - name: Install & build frontend
         working-directory: frontend
         run: |
           npm ci
           npm run build
 
+      # Build Python wheel or do nothing if no tests
       - name: Setup Python
         uses: actions/setup-python@v4
-        with: python-version: '3.x'
+        with:
+          python-version: '3.x'
 
       - name: Install Python deps
+        if: ${{ always() && (files.changed | contains('requirements.txt')) }}
         run: |
-          if exist requirements.txt (
-            pip install -r requirements.txt
-          )
+          pip install -r requirements.txt
 
       - name: Run Python tests
-        run: pytest || echo "no python tests to run"
+        continue-on-error: true
+        run: |
+          pytest || true
 
+      # Build Electron installer
       - name: Install & build installer
         working-directory: installer
         run: |
           npm ci
           npm run build
 
+      # Create a GitHub Release from the pushed tag
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Upload the Windows installer artifact
       - name: Upload installer asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-upload-release-asset@v1
         with:
-          files: installer/dist_installer/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: installer/dist_installer/your-installer.exe
+          asset_name: your-installer.exe
+          asset_content_type: application/octet-stream
