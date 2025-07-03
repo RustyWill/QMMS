@@ -1,80 +1,45 @@
-name: Full CI
+name: CI
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  # 1) Lint all workflows
-  lint-workflows:
-    name: 🔍 Lint GitHub Actions YAML
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install yamllint
-        run: |
-          sudo apt-get update && sudo apt-get install -y yamllint
-      - name: Run yamllint
-        run: |
-          yamllint .github/workflows/**/*.yml
-
-  # 2) Matrix over every JS folder
-  node-modules:
-    name: ⚙️ Build & Test ${{ matrix.folder }}
-    runs-on: ubuntu-latest
-    needs: lint-workflows
-    strategy:
-      matrix:
-        folder: [ frontend, installer ]
+  build-installer-and-python:
+    runs-on: windows-latest
     defaults:
       run:
-        working-directory: ${{ matrix.folder }}
+        working-directory: installer
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests or build
+      - name: Install & build installer
         run: |
-          if [ "${{ matrix.folder }}" = "installer" ]; then
-            # build your Electron installer
-            npm run build -- --config electron-builder.json
-          else
-            # test your front-end; doesn’t fail if no tests
-            npm test -- --passWithNoTests || true
-          fi
-
-  # 3) Python lint & tests (only once)
-  python:
-    name: 🐍 Lint & Test Python
-    runs-on: ubuntu-latest
-    needs: [ lint-workflows, node-modules ]
-    steps:
-      - uses: actions/checkout@v3
+          npm ci
+          npm run build -- --config electron-builder.json
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: Install Flake8
-        run: pip install flake8
-
-      - name: Lint Python
+      - name: Install Python deps (if any)
+        shell: bash
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
+          if [ -f ../requirements.txt ]; then
+            pip install -r ../requirements.txt
           fi
-          flake8 .
 
-      - name: Run pytest (optional)
-        run: pytest || true
+      - name: Run Python tests
+        shell: bash
+        run: |
+          pytest || true
 

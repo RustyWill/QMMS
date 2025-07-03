@@ -2,52 +2,19 @@ name: Build & Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*.*.*'
 
 jobs:
-  build-test:
-    runs-on: windows-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install & build frontend
-        working-directory: frontend
-        run: |
-          npm ci
-          npm run build
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Install Python deps (if any)
-        shell: bash
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-
-      - name: Run Python tests
-        shell: bash
-        run: |
-          pytest || true
-
   build-and-release:
-    needs: build-test
     runs-on: windows-latest
     defaults:
       run:
         working-directory: installer
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -57,19 +24,20 @@ jobs:
       - name: Install & build installer
         run: |
           npm ci
-          npm run build
+          npm run build -- --config electron-builder.json
 
       - name: Create GitHub Release (draft)
         id: create_release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           draft: true
 
       - name: Upload installer asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: installer/dist_installer/QMMS-Setup-${{ github.ref_name }}.exe
+          asset_path: dist_installer/QMMS-Setup-${{ github.ref_name }}.exe
           asset_name: QMMS-Setup-${{ github.ref_name }}.exe
           asset_content_type: application/octet-stream

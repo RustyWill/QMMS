@@ -1,1 +1,2 @@
-pytest
+# any Python deps here, for example:
+# pytest==8.4.1
