@@ -8,17 +8,17 @@ on:
 jobs:
   build-and-release:
     runs-on: windows-latest
-    needs: build-test
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: Install & build frontend
+      - name: Install & build front-end
         working-directory: frontend
         run: |
           npm ci
@@ -29,39 +29,36 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Always try to install Python deps, but don’t fail if requirements.txt is missing
       - name: Install Python deps
-        shell: bash
+        if: ${{ always() && (contains(github.event.head_commit.modified, 'requirements.txt') || contains(github.event.head_commit.added, 'requirements.txt')) }}
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt, skipping Python dependencies"
-          fi
+          pip install -r requirements.txt
 
       - name: Run Python tests
         continue-on-error: true
-        run: |
-          pytest || echo "No Python tests or failures allowed"
+        run: pytest || true
 
-      - name: Install & build installer
+      - name: Install installer dependencies
         working-directory: installer
-        run: |
-          npm ci
-          npm run build
+        run: npm ci
+
+      - name: Build Windows installer
+        working-directory: installer
+        run: npm run build
 
       - name: Create GitHub Release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: v${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
 
       - name: Upload installer asset
-        uses: softprops/action-upload-release-asset@v1
+        uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: installer/dist_installer/your-installer.exe
-          asset_name: your-installer.exe
+          asset_path: installer/dist_installer/*.exe
+          asset_name: QMMS-Setup-${{ github.ref_name }}.exe
           asset_content_type: application/octet-stream
