@@ -2,21 +2,13 @@
   "name": "qmms-installer",
   "version": "1.0.0",
   "description": "QMMS 2.0 Trading System Windows installer",
-  "author": "Your Name",
   "private": true,
+  "main": "index.js",
   "scripts": {
     "build": "electron-builder --win --x64"
   },
   "devDependencies": {
     "electron": "^25.0.0",
     "electron-builder": "^23.6.0"
-  },
-  //
-  // Option A: if your real entry is in the repo root as `main.js`,
-  // point `main` up one directory:
-  //
-  "main": "../main.js",
-  "keywords": [],
-  "license": "ISC"
+  }
 }
-

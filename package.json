@@ -1,27 +1,19 @@
 {
-  "name": "qmms-trading-system",
+  "name": "QMMS Trading System",
   "version": "2.2.4",
   "private": true,
   "scripts": {
-    "start": "electron .",
-    "build:frontend": "cd frontend && npm run build",
-    "dist": "electron-builder --win"
+    "build:frontend": "cd frontend && npm ci && npm run build",
+    "build:installer": "cd installer && npm ci && npm run build",
+    "dist": "npm run build:frontend && npm run build:installer"
+  },
+  "dependencies": {
+    "lucide-react": "^0.255.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "electron": "^25.0.0",
     "electron-builder": "^23.6.0"
-  },
-  "main": "main.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/RustyWill/QMMS.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/RustyWill/QMMS/issues"
-  },
-  "homepage": "https://github.com/RustyWill/QMMS#readme",
-  "description": ""
+  }
 }
