@@ -7,20 +7,15 @@ on:
 
 jobs:
   build-test:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        node-version: ['18']
-        python-version: ['3.x']
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '18'
 
       - name: Install & test frontend
         working-directory: frontend
@@ -30,17 +25,14 @@ jobs:
 
       - name: Build frontend production bundle
         working-directory: frontend
-        run: |
-          npm ci
-          npm run build
+        run: npm run build
 
-      - name: Setup Python ${{ matrix.python-version }}
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.x'
 
       - name: Install Python deps (if any)
-        # force bash so `[ -f file ]` syntax works on Windows runners
         shell: bash
         run: |
           if [ -f requirements.txt ]; then
