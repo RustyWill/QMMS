@@ -2,11 +2,14 @@
   "appId": "com.yourcompany.qmms",
   "productName": "QMMS Trading System",
   "directories": {
-    "app": ".",
+    "app": "..",               
     "output": "dist_installer"
   },
   "files": [
-    "**/*"
+    "main.js",
+    "preload.js",
+    "package.json",
+    "frontend/build/**/*"
   ],
   "win": {
     "target": "nsis"
