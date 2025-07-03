@@ -2,36 +2,45 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build-test:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: ['18']
+        python-version: ['3.x']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
 
       - name: Install & test frontend
         working-directory: frontend
         run: |
           npm ci
-          npm run build
-          npm test -- --passWithNoTests
+          npm run test -- --passWithNoTests
 
-      - name: Setup Python
+      - name: Build frontend production bundle
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install Python deps (if any)
+        # force bash so `[ -f file ]` syntax works on Windows runners
         shell: bash
         run: |
           if [ -f requirements.txt ]; then
