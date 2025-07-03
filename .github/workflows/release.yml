@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install & build front-end
+      - name: Install & build frontend
         working-directory: frontend
         run: |
           npm ci
@@ -30,13 +30,17 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python deps
-        if: ${{ always() && (contains(github.event.head_commit.modified, 'requirements.txt') || contains(github.event.head_commit.added, 'requirements.txt')) }}
+        shell: bash
         run: |
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install --upgrade pip
+            pip install -r requirements.txt
+          fi
 
       - name: Run Python tests
-        continue-on-error: true
-        run: pytest || true
+        shell: bash
+        run: |
+          pytest || true
 
       - name: Install installer dependencies
         working-directory: installer
@@ -47,18 +51,17 @@ jobs:
         run: npm run build
 
       - name: Create GitHub Release
-        id: create_release
         uses: ncipollo/release-action@v1
         with:
-          tag: v${{ github.ref_name }}
+          tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+          files: |
+            installer/dist_installer/*.exe
 
       - name: Upload installer asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: installer/dist_installer/*.exe
+          asset_path: installer/dist_installer/QMMS-Setup-${{ github.ref_name }}.exe
           asset_name: QMMS-Setup-${{ github.ref_name }}.exe
           asset_content_type: application/octet-stream
