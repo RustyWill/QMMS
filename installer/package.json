@@ -1,14 +1,14 @@
 {
   "name": "qmms-installer",
-  "version": "1.0.0",
-  "description": "QMMS 2.0 Trading System Windows installer",
+  "version": "2.2.6",
   "private": true,
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "build": "electron-builder --win --x64"
   },
   "devDependencies": {
-    "electron": "^25.0.0",
+    "electron": "^25.9.8",
     "electron-builder": "^23.6.0"
   }
 }
+

@@ -1,26 +1,15 @@
 {
-  "appId": "com.yourcompany.qmms",
-  "productName": "QMMS Trading System",
+  "appId": "com.rustywill.qmms",
   "directories": {
-    "output": "dist_installer",
-    "app": "."
+    "app": ".",
+    "output": "dist_installer"
   },
   "files": [
-    // include everything under installer/, plus your app entry one level up:
-    "**/*",
-    "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
-    "!node_modules/.bin",
-    // if you use Option A (main="../main.js"), explicitly bundle the root main.js:
-    "../main.js"
+    "**/*"
   ],
   "win": {
-    "target": "nsis",
-    "icon": "installer/icons/app.ico"
-  },
-  "nsis": {
-    "oneClick": false,
-    "perMachine": false,
-    "allowToChangeInstallationDirectory": true
+    "target": ["nsis"],
+    "artifactName": "QMMS-Setup-${version}.exe"
   }
 }
 

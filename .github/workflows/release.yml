@@ -13,50 +13,44 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+        with: node-version: '18'
 
-      - name: Build front-end
+      - name: Install & build front-end
         working-directory: frontend
         run: |
           npm ci
           npm run build
-        env:
-          CI: true
 
       - name: Setup Python
         uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+        with: python-version: '3.x'
 
       - name: Install Python deps
         run: |
-          if [ -f requirements.txt ]; then
+          if exist requirements.txt (
             pip install -r requirements.txt
-          fi
-        shell: bash
+          )
 
       - name: Run Python tests
-        continue-on-error: true
-        run: |
-          pytest || echo "no tests"
-        shell: bash
+        run: pytest || echo "no python tests to run"
 
       - name: Install & build installer
         working-directory: installer
         run: |
           npm ci
           npm run build
-        shell: bash
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload installer asset
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          asset_path: installer/dist_installer/*.exe
-          asset_name: qmms-${{ github.ref_name }}.exe
+          files: installer/dist_installer/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
