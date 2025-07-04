@@ -1,25 +1,15 @@
-# Lint all of our GitHub Actions YAML for syntax errors
 name: Lint CI YAML
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: push
 
 jobs:
   yamllint:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
       - name: Install yamllint
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y yamllint
+        run: pip install yamllint
 
-      - name: Lint workflow files
-        run: yamllint .github/workflows/*.yml
+      - name: Run yamllint
+        run: yamllint .github/workflows

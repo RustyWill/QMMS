@@ -1,13 +1,9 @@
-# .github/workflows/release.yml
 name: Build & Publish Installer
 
-on:
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
-  build-and-release:
+  build-and-release:           # ← this is now a root job (no `needs:`)
     runs-on: windows-latest
 
     steps:
@@ -34,11 +30,14 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
+          else
+            echo "No requirements.txt at repo root"
           fi
 
       - name: Run Python tests
         shell: bash
-        run: pytest || true
+        run: |
+          pytest || true
 
       - name: Install & build installer
         working-directory: installer
@@ -51,7 +50,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
           draft: true
 
       - name: Upload installer asset
