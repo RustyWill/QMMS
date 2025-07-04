@@ -1,34 +1,36 @@
 name: Build & Publish Installer
 
-on:
-  workflow_dispatch:
+# only fires when you click “Run workflow” in the Actions UI
+on: workflow_dispatch
 
 jobs:
   package-and-release:
     runs-on: windows-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 1) Copy in your already-built installer bits (or build them here).
-      #    For now I'll assume you've zipped up your installer as installer/QMMS-Setup.exe
-      - name: Upload local installer
-        run: echo "🚧 Build step goes here, or use artifacts from your last successful test run"
+      # 🔨 Build your installer here (or copy in your prebuilt .exe)
+      - name: Build installer
+        run: |
+          cd installer
+          npm ci
+          npm run build   # e.g. electron-builder --win --x64
+        shell: bash
 
-      # 2) Create the GitHub Release (draft)
-      - name: Create GitHub Release
+      - name: Create GitHub Release (draft)
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name || 'v-DEV' }}
-          name: Release ${{ github.ref_name || 'DEV' }}
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           draft: true
 
-      # 3) Attach your installer asset
       - name: Upload installer asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: installer/QMMS-Setup-${{ github.ref_name || 'DEV' }}.exe
-          asset_name: QMMS-Setup-${{ github.ref_name || 'DEV' }}.exe
+          asset_path: installer/dist/QMMS-Setup-${{ github.ref_name }}.exe
+          asset_name: QMMS-Setup-${{ github.ref_name }}.exe
           asset_content_type: application/octet-stream

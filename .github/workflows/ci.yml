@@ -9,6 +9,7 @@ on:
 jobs:
   build-and-test:
     runs-on: windows-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,9 +32,14 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python deps (if any)
+        # force bash so `if [ -f … ]` works on Windows
+        shell: bash
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
 
       - name: Run Python tests (if any)
+        shell: bash
         run: |
           pytest || true
