@@ -2,9 +2,9 @@
   "name": "qmms-installer",
   "version": "2.2.6",
   "private": true,
-  "main": "main.js",   
+  "main": "main.js",
   "scripts": {
-    "build": "tsc",      
+    "build": "tsc",
     "dist": "electron-builder --win --x64"
   },
   "devDependencies": {
@@ -15,13 +15,14 @@
     "appId": "com.yourcompany.qmms",
     "directories": {
       "output": "dist_installer",
-      "app": "."             
+      "app": "."
     },
     "win": {
       "target": "nsis"
     }
   }
 }
+
 
 
 
