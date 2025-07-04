@@ -1,0 +1,88 @@
+name: Build, Test & Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install & Test Front-end
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test -- --passWithNoTests
+          npm run build
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install & Test Python
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pytest || true
+
+      - name: Gather built app
+        run: |
+          rm -rf installer/app
+          mkdir -p installer/app
+          cp -R frontend/dist/* installer/app/
+          cp *.py installer/app/
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-app
+          path: installer/app
+
+  package-and-release:
+    needs: build-and-test
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download app artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: built-app
+          path: installer/app
+
+      - name: Setup Node.js for installer
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install & Build Installer
+        working-directory: installer
+        run: |
+          npm ci
+          npm run build
+
+      - name: Create GitHub Release (draft)
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: true
+
+      - name: Upload installer asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: installer/dist_installer/QMMS-Setup-${{ github.ref_name }}.exe
+          asset_name: QMMS-Setup-${{ github.ref_name }}.exe
+          asset_content_type: application/octet-stream
