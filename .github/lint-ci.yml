@@ -1,11 +1,18 @@
-# .github/workflows/lint-ci.yml
+# Lint all of our GitHub Actions YAML for syntax errors
 name: Lint CI YAML
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   yamllint:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
 

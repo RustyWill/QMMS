@@ -1,20 +1,21 @@
 {
   "name": "qmms-trading-system-installer",
-  "version": "1.0.0",
+  "version": "2.2.6",
   "description": "QMMS 2.0 Trading System Windows installer",
   "author": "Your Name",
   "private": true,
   "main": "main.js",
-  "scripts": {
-    "build": "electron-builder --win --x64"
-  },
   "productName": "QMMS Trading System",
   "devDependencies": {
     "electron": "^25.0.0",
     "electron-builder": "^23.6.0"
   },
+  "scripts": {
+    "build": "electron-builder --win --x64 --config electron-builder.json"
+  },
   "license": "ISC"
 }
+
 
 
 

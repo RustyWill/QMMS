@@ -1,18 +1,15 @@
 {
-  "appId": "com.yourcompany.qmms",
-  "productName": "QMMS Trading System",
+  "appId": "com.yourorg.qmms",
   "directories": {
-    "app": "..",               
+    "app": ".",
     "output": "dist_installer"
   },
   "files": [
-    "main.js",
-    "preload.js",
-    "package.json",
-    "frontend/build/**/*"
+    "**/*"
   ],
   "win": {
-    "target": "nsis"
+    "target": "nsis",
+    "artifactName": "QMMS-Setup-${version}.exe"
   }
 }
 
