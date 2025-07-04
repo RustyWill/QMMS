@@ -2,15 +2,18 @@
   "appId": "com.rustywill.qmms",
   "productName": "QMMS Trading System",
   "directories": {
-    "app": "../",         
+    "app": ".",
     "output": "dist_installer"
   },
   "files": [
     "**/*"
   ],
   "win": {
-    "target": [ "nsis" ]
+    "target": ["nsis"],
+    "icon": "build/icon.ico"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false
   }
 }
-
-

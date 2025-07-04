@@ -2,15 +2,17 @@ name: CI & Release
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-and-test:
+  build-test:
+    name: Build & Test
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      # — Node & frontend tests —
+      # Frontend
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -19,55 +21,56 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
-          npm test -- --passWithNoTests
+          npm run test -- --passWithNoTests
+      - name: Build frontend production bundle
+        working-directory: frontend
+        run: npm run build
 
-      # — Python tests (shell: bash so we can use “[ -f ]”) —
+      # Python backend
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - name: Install Python deps
+      - name: Install Python deps (if any)
         shell: bash
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
-      - name: Run Python tests
+      - name: Run Python tests (if any)
         shell: bash
         run: |
           pytest || true
 
   build-and-release:
-    needs: build-and-test
+    name: Build & Publish Installer
     runs-on: windows-latest
+    needs: build-test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      # — Build your Windows installer in its own folder —
+      # Build installer
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
       - name: Install & build installer
         working-directory: installer
-        run: |
-          npm ci
-          npm run build
+        run: npm ci && npm run build
 
-      # — Draft a GitHub Release named after the pushed tag —
-      - name: Create GitHub Release (draft)
-        id: create_release
-        uses: actions/create-release@v1
+      # Create or update GitHub Release Draft
+      - name: Create or update Release draft
+        id: ghr
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
           release_name: Release ${{ github.ref_name }}
           draft: true
 
-      # — Upload the built .exe as a release asset —
       - name: Upload installer asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.ghr.outputs.upload_url }}
           asset_path: installer/dist_installer/QMMS-Setup-${{ github.ref_name }}.exe
           asset_name: QMMS-Setup-${{ github.ref_name }}.exe
           asset_content_type: application/octet-stream
