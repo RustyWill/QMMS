@@ -1,21 +1,20 @@
-# Node
-node_modules/
+# Node modules
 **/node_modules/
-package-lock.json
-npm-debug.log*
 
-# Frontend build
-frontend/build/
+# Build output
+**/build/
+**/dist/
 
-# Installer build
-installer/dist_installer/
+# Lock files
+**/package-lock.json
+**/npm-shrinkwrap.json
+**/yarn.lock
 
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-requirements.txt
-
-# OS
+# IDE / OS files
 .DS_Store
-Thumbs.db
+.vscode/
+*.log
+
+# Optional: monorepo-specific
+**/frontend/node_modules/
+**/frontend/build/
