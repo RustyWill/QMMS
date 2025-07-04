@@ -3,7 +3,7 @@ name: Build & Publish Installer
 on: push
 
 jobs:
-  build-and-release:           # ← this is now a root job (no `needs:`)
+  build-and-release:
     runs-on: windows-latest
 
     steps:
