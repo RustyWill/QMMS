@@ -1,4 +1,4 @@
-# Build the installer and push a GitHub Release draft
+# .github/workflows/release.yml
 name: Build & Publish Installer
 
 on:
@@ -9,7 +9,6 @@ on:
 jobs:
   build-and-release:
     runs-on: windows-latest
-    needs: build-test
 
     steps:
       - uses: actions/checkout@v3
@@ -52,7 +51,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           draft: true
 
       - name: Upload installer asset
