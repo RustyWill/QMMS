@@ -2,13 +2,9 @@ name: CI & Release
 
 on:
   push:
-    # build on every push to main
-    branches:
-      - main
-  # and on every new tag
+    branches: [ main ]
   create:
-    tags:
-      - 'v*'
+    tags: [ 'v*' ]
 
 jobs:
   build-and-test:
@@ -17,32 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Use Node.js 18.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+      # 1) Install all workspaces in your repo (frontend, installer, etc)
+      - name: Install all dependencies
+        run: npm install   # not `npm ci`—we need workspaces & devDependencies (Tailwind)
 
-      - name: Install & test frontend
-        working-directory: ./frontend
-        run: |
-          npm ci
-          npm test
+      # 2) Frontend: lint/test/build
+      - name: Test frontend
+        run: npm --workspace=frontend test
 
       - name: Build frontend
-        working-directory: ./frontend
-        run: npm run build
+        run: npm --workspace=frontend run build
 
-      - name: Set up Python (if you need it)
+      # 3) (Optional) Python support
+      - name: Setup Python
         uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-
+        with: python-version: '3.11'
       - name: Install Python deps
-        if: fileExists('requirements.txt')
+        if: ${{ runner.os != 'Windows' && (exists('requirements.txt')) }}
         run: pip install -r requirements.txt
-
       - name: Run Python tests
-        if: fileExists('tests')
+        if: ${{ runner.os != 'Windows' && (exists('tests')) }}
         run: pytest
 
   package-installer:
@@ -52,38 +42,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Use Node.js 18.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+      # 1) Re-install so Windows has your workspaces too
+      - name: Install all dependencies
+        run: npm install
 
-      # install all workspaces (root package.json) so that both frontend and installer deps resolve
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Build Electron main
-        working-directory: ./installer
+      # 2) Build your Electron “main” (transpile, copy, etc)
+      - name: Build installer code
+        working-directory: installer
         run: npm run build
 
+      # 3) Package the Windows .exe
       - name: Package Windows installer
-        working-directory: ./installer
+        working-directory: installer
         run: npx electron-builder --win --x64
 
+      # 4) Expose the .exe as a CI artifact
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
           name: QMMS-Setup
-          path: ./installer/dist_installer/*.exe
+          path: installer/dist_installer/*.exe
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: package-installer
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Create GitHub Release (draft)
+      - name: Create Draft GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
@@ -91,11 +78,11 @@ jobs:
           name: Release ${{ github.ref_name }}
           draft: true
 
-      - name: Upload installer asset
+      - name: Upload installer to release
         uses: actions/upload-release-asset@v3
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./installer/dist_installer/QMMS-Setup-${{ github.ref_name }}.exe
+          asset_path: installer/dist_installer/QMMS-Setup-${{ github.ref_name }}.exe
           asset_name: QMMS-Setup-${{ github.ref_name }}.exe
           asset_content_type: application/octet-stream
 
