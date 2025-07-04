@@ -1,15 +1,18 @@
 {
   "name": "qmms-monorepo",
-  "version": "2.2.6",
   "private": true,
+  "version": "2.2.6",
+
   "workspaces": [
     "frontend",
-    "installer",
-    "."
+    "installer"
   ],
-  "main": "installer/main.js",
+
   "scripts": {
-    "bootstrap": "npm ci && npm run build --workspace frontend && npm run build --workspace installer"
+    "build": "npm --workspace=frontend run build && npm --workspace=installer run build"
+  },
+
+  "devDependencies": {
   }
 }
 

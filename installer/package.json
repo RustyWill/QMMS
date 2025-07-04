@@ -2,14 +2,24 @@
   "name": "qmms-installer",
   "version": "2.2.6",
   "private": true,
-  "description": "QMMS Windows installer",
-  "main": "main.js",
+  "main": "main.js",   
   "scripts": {
-    "build": "electron-builder --win --x64 --config=electron-builder.json"
+    "build": "tsc",      
+    "dist": "electron-builder --win --x64"
   },
   "devDependencies": {
     "electron": "^25.9.8",
     "electron-builder": "^23.6.0"
+  },
+  "build": {
+    "appId": "com.yourcompany.qmms",
+    "directories": {
+      "output": "dist_installer",
+      "app": "."             
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }
 
