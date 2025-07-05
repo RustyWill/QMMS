@@ -1,29 +1,63 @@
 {
   "name": "qmms-installer",
   "version": "2.2.6",
-  "private": true,
-  "main": "main.js",
-  "scripts": {
-    "build": "tsc",
-    "dist": "electron-builder --win --x64"
+  "description": "QMMS Trading System Installer",
+  "main": "../main.js",
+  "author": {
+    "name": "RustyWill",
+    "email": "rusty@example.com"
   },
-  "devDependencies": {
-    "electron": "^25.9.8",
-    "electron-builder": "^23.6.0"
+  "license": "MIT",
+  "scripts": {
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "dist": "npm run build"
   },
   "build": {
-    "appId": "com.yourcompany.qmms",
+    "appId": "com.rustywill.qmms",
+    "productName": "QMMS Trading System",
     "directories": {
-      "output": "dist_installer",
-      "app": "."
+      "app": "..",
+      "output": "dist"
     },
+    "files": [
+      "../main.js",
+      "../preload.js",
+      "../frontend/build/**/*",
+      "../package.json"
+    ],
+    "extraFiles": [
+      {
+        "from": "../frontend/build",
+        "to": "frontend/build",
+        "filter": ["**/*"]
+      }
+    ],
     "win": {
-      "target": "nsis"
-    }
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "publisherName": "RustyWill"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "publish": null
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.13.3"
   }
 }
-
-
 
 
 

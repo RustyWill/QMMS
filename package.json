@@ -2,12 +2,27 @@
   "name": "qmms-monorepo",
   "private": true,
   "version": "2.2.6",
+  "description": "QMMS Trading System - Quantum Market Matrix System",
+  "main": "main.js",
+  "author": "RustyWill",
+  "license": "MIT",
   "workspaces": [
     "frontend",
     "installer"
   ],
   "scripts": {
-    "build": "npm --workspace=frontend run build && npm --workspace=installer run build"
+    "build": "react-scripts build",
+    "start": "react-scripts start",
+    "dev": "npm --workspace=frontend run start",
+    "install-all": "npm install && npm --workspace=frontend install && npm --workspace=installer install",
+    "clean": "npm --workspace=frontend run build && rimraf installer/dist"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "rimraf": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
 }
