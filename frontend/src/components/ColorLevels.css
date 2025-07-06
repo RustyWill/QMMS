@@ -1,0 +1,77 @@
+.columns-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;           /* prevent any scrollbars */
+  padding: 0;
+  margin: 0;
+}
+
+.color-column {
+  flex: 0 1 23%;              /* four equal columns */
+  padding: 16px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: calc(100% - 64px);  /* leave space for headings/button */
+  overflow: auto;             /* scroll only inside column if too many lines */
+}
+
+.color-title {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.subheading {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.line-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.line-row label {
+  flex: 0 0 auto;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
+.line-row input {
+  flex: 1 1 auto;
+  max-width: 60px;
+  padding: 6px 8px;
+  font-size: 1rem;
+}
+
+.remove-button {
+  flex: 0 0 auto;
+  margin-left: 8px;
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-button {
+  margin: 8px 0 0;
+  background-color: #27ae60;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  border-radius: 4px;
+  cursor: pointer;
+}

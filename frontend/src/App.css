@@ -1,0 +1,42 @@
+/* make the whole app fill the viewport and hide any overflow */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
+  height: 100%;
+  background-color: #ffffff;
+}
+
+/* Title centered */
+.app-title {
+  margin: 0;
+  font-size: 2rem;
+  text-align: center;
+}
+
+/* Subtitle under the title */
+.section-subtitle {
+  margin: 12px 0 24px;
+  font-size: 1.2rem;
+  font-weight: normal;
+  text-align: center;
+}
+
+/* Big green “Start Daily Session” button */
+.start-button {
+  margin-top: auto;      /* stick it to the bottom */
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  background-color: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

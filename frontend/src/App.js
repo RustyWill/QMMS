@@ -1,56 +1,51 @@
-// frontend/src/App.js
 import React, { useState } from 'react';
 import ColorLevels from './components/ColorLevels';
-import EntryPorts from './components/EntryPorts';
+
+const emptyLevels = { sLevels: ['', '', '', ''], dLevels: ['', '', '', '', ''] };
 
 function App() {
-  // each color has 4 S‐levels and 5 D‐levels
-  const emptyLevels = { sLevels: ['', '', '', ''], dLevels: ['', '', '', '', ''] };
-
-  const [blue,   setBlue]   = useState({ ...emptyLevels });
+  const [blue, setBlue]     = useState({ ...emptyLevels });
   const [orange, setOrange] = useState({ ...emptyLevels });
-  const [black,  setBlack]  = useState({ ...emptyLevels });
-  const [teal,   setTeal]   = useState({ ...emptyLevels });
+  const [black, setBlack]   = useState({ ...emptyLevels });
+  const [teal, setTeal]     = useState({ ...emptyLevels });
+  const [status, setStatus] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // you now have blue, orange, black, teal in state – send them to your API
-    console.log({ blue, orange, black, teal });
+    const payload = { blue, orange, black, teal };
+    try {
+      const res = await fetch('http://localhost:5000/api/levels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setStatus('Levels submitted successfully!');
+      } else {
+        setStatus('Error submitting levels');
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus('Network error');
+    }
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: 'sans-serif' }}>
+    <div style={{ padding: 20, maxWidth: 800, margin: '0 auto' }}>
       <h1>QMMS Trading System</h1>
-
-      <ColorLevels
-        color="Blue"
-        sLevels={blue.sLevels}
-        dLevels={blue.dLevels}
-      />
-
-      <ColorLevels
-        color="Orange"
-        sLevels={orange.sLevels}
-        dLevels={orange.dLevels}
-      />
-
-      <ColorLevels
-        color="Black"
-        sLevels={black.sLevels}
-        dLevels={black.dLevels}
-      />
-
-      <ColorLevels
-        color="Teal"
-        sLevels={teal.sLevels}
-        dLevels={teal.dLevels}
-      />
-
-      <EntryPorts
-        // if you have any port defaults, pass here; otherwise leave empty array
-        ports={[]}
-        onSubmit={handleSubmit}
-      />
+      <form onSubmit={handleSubmit}>
+        <ColorLevels color="blue"   levels={blue}   setLevels={setBlue}   />
+        <ColorLevels color="orange" levels={orange} setLevels={setOrange} />
+        <ColorLevels color="black"  levels={black}  setLevels={setBlack}  />
+        <ColorLevels color="teal"   levels={teal}   setLevels={setTeal}   />
+        <button
+          type="submit"
+          style={{ padding: '0.5em 1em', fontSize: '1em', marginTop: '1em' }}
+        >
+          Submit Levels
+        </button>
+      </form>
+      {status && <p style={{ marginTop: 16 }}>{status}</p>}
     </div>
   );
 }
